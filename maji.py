@@ -58,7 +58,7 @@ def make(root):
     log.info('getting started at: %s', root)
     blog = root / 'blog'
     paths = blog.glob('*.md')
-    out = []
+    posts = []
     for path in paths:
         log.info('markdown: %r', path)
         with path.open('r') as f:
@@ -87,10 +87,18 @@ def make(root):
         filename = path.name.split('.')
         filename[-1] = 'html'
         filename = '.'.join(filename)
+        post['filename'] = filename
         output = path.parent / filename
         with output.open('w') as f:
             f.write(page)
         log.debug('wrote: %s', output)
+        posts.append(post)
+    posts.sort(key=lambda x: x['date'], reverse=True)
+    log.debug('rendering index')
+    page = jinja('index.jinja2', os.getcwd(), posts=posts)
+    output = Path(os.getcwd()) / 'index.html'
+    with output.open('w') as f:
+        f.write(page)
 
 
 def main():
