@@ -24,10 +24,12 @@ setup(
     maji=maji:main
     """,
     install_requires=[
-        'mistune',
-        'jinja2',
+        'daiquiri',
         'docopt',
-        'pygments',        
+        'jinja2',
+        'lxml',
+        'mistune',
+        'pygments',
     ],
     classifiers=[
         'Intended Audience :: Developers',
