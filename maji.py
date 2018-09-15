@@ -110,7 +110,7 @@ def make(root, base):
         url = base + '/blog/' + post['filename']
         entry.id(url)
         entry.title(post['title'])
-        entry.link(href=url, rel='self')
+        entry.link(href=url)
         entry.published(post['date'].isoformat())
     feed.rss_file(str(output))
     log.info('rendering index')
@@ -136,3 +136,7 @@ def main():
         templates = os.path.dirname(templates)
         out = jinja(template, templates, content=content)
         print(out)
+
+
+if __name__ == '__main__':
+    main()
