@@ -26,6 +26,7 @@ setup(
     install_requires=[
         'daiquiri',
         'docopt',
+        'feedgen',
         'jinja2',
         'lxml',
         'mistune',

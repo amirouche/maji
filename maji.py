@@ -3,7 +3,7 @@
 
 Usage:
   maji init
-  maji make
+  maji make <base-url>
   maji render <template>
 """
 import logging
@@ -14,7 +14,9 @@ from pathlib import Path
 import daiquiri
 from docopt import docopt
 from datetime import datetime
+from datetime import timezone
 from lxml.html import fromstring as string2html
+from feedgen.feed import FeedGenerator
 
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
@@ -53,7 +55,7 @@ def jinja(template, templates, **context):
 
 # make
 
-def make(root):
+def make(root, base):
     root = Path(root)
     log.info('getting started at: %s', root)
     blog = root / 'blog'
@@ -75,6 +77,7 @@ def make(root):
         log.debug('title is: %s', title)
         date = title[:len('2017/03/01')]
         date = datetime.strptime(date, '%Y/%m/%d')
+        date = date.replace(tzinfo=timezone.utc)
         log.debug('publication date is: %s', date)
         post = {
             'title': title,
@@ -83,7 +86,7 @@ def make(root):
             'path': path,
         }
         log.debug('rendering blog post')
-        page = jinja('post.jinja2', os.getcwd(), **post)
+        page = jinja('post.jinja2', os.getcwd(), base=base, **post)
         filename = path.name.split('.')
         filename[-1] = 'html'
         filename = '.'.join(filename)
@@ -94,8 +97,24 @@ def make(root):
         log.debug('wrote: %s', output)
         posts.append(post)
     posts.sort(key=lambda x: x['date'], reverse=True)
-    log.debug('rendering index')
-    page = jinja('index.jinja2', os.getcwd(), posts=posts)
+    # populate feed
+    output = root / 'feed.xml'
+    log.info('generating feed at: %s', output)
+    feed = FeedGenerator()
+    feed.id(base)
+    feed.title('hyperdev.fr')
+    feed.subtitle('forward and beyond')
+    feed.link(href=base + '/feed.xml', rel='self')
+    for post in posts:
+        entry = feed.add_entry()
+        url = base + '/blog/' + post['filename']
+        entry.id(url)
+        entry.title(post['title'])
+        entry.link(href=url, rel='self')
+        entry.published(post['date'].isoformat())
+    feed.rss_file(str(output))
+    log.info('rendering index')
+    page = jinja('index.jinja2', os.getcwd(), base=base, posts=posts)
     output = Path(os.getcwd()) / 'index.html'
     with output.open('w') as f:
         f.write(page)
@@ -106,7 +125,8 @@ def main():
     if args.get('init'):
         raise NotImplementedError()
     elif args.get('make'):
-        make(os.getcwd())
+        base = args['<base-url>']
+        make(os.getcwd(), base)
     elif args.get('render'):
         # render markdown to html
         content = markdown(sys.stdin.read())
