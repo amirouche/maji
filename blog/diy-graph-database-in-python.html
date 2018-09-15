@@ -90,7 +90,7 @@ reader ;)</p>
 <p>Every Key is unique and is associated with a Value. Given the fact that the store is ordered one can easily retrieve every (key, value) tuple associated with a given identifier by going through the the ordered key space.</p>
 <p>The above tuple space will look like the following in the key/value database; using a high level view ie. not bytes view:</p>
 
-<div><pre><code>*******|           Key            |                 Value
+<div><pre>*******|           Key            |                 Value
 -------+------------+-------------+------------------------------------------
 Colunms| identifier |  name       |                 value
 -------+------------+-------------+------------------------------------------
@@ -110,7 +110,7 @@ Colunms| identifier |  name       |                 value
 
        |     42     |   title     |    "building a graphdb with HappyBase"
 
-            ...          ...                         ...</code></pre></div>
+            ...          ...                         ...</pre></div>
 <h4>Key composition</h4>
 <p>To keep the database ordered you need to pack correctly the components of the Key. You can not simply convert string to bytes, how will you distinguish the string from the other components of the key? You can't use the string representation of number ie. "42" for "42". Remember "2" is bigger than "10".</p>
 <p>In a complete TupleSpace implementation one must also take into acccount that values can be of many types.</p>

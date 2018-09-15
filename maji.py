@@ -32,8 +32,8 @@ log = daiquiri.getLogger(__name__)
 class HighlightRenderer(mistune.Renderer):
     def block_code(self, code, lang):
         if not lang:
-            out = '\n<div><pre><code>{}</code></pre></div>\n'
-            return out.format(mistune.escape(code))
+            out = '\n<div><pre>{}</pre></div>\n'
+            return out.format(mistune.escape(code.strip()))
         lexer = get_lexer_by_name(lang, stripall=True)
         formatter = html.HtmlFormatter()
         return highlight(code, lexer, formatter)
